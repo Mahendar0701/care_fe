@@ -261,6 +261,7 @@ const DischargeModal = ({
               />
             </div>
           )}
+
           <DateFormField
             name={
               discharge_reason ===

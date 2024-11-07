@@ -202,26 +202,53 @@ const DateInputV2: React.FC<Props> = ({
     year === datePickerHeaderDate.getFullYear();
 
   const setMonthValue = (month: number) => () => {
-    setDatePickerHeaderDate(
-      new Date(
-        datePickerHeaderDate.getFullYear(),
-        month,
-        datePickerHeaderDate.getDate(),
-      ),
+    const newDate = new Date(
+      datePickerHeaderDate.getFullYear(),
+      month,
+      datePickerHeaderDate.getDate(),
     );
-    setType("date");
+
+    // Check if the new date is within the constraints
+    if (
+      isDateWithinConstraints(newDate.getDate(), month, newDate.getFullYear())
+    ) {
+      setDatePickerHeaderDate(newDate);
+      setType("date");
+    } else {
+      // Optionally, show a message or highlight that the date is out of range
+      Notification.Error({
+        msg: outOfLimitsErrorMessage ?? "Cannot select month out of range",
+      });
+    }
   };
 
   const setYearValue = (year: number) => () => {
-    setDatePickerHeaderDate(
-      new Date(
-        year,
-        datePickerHeaderDate.getMonth(),
-        datePickerHeaderDate.getDate(),
-      ),
+    const newDate = new Date(
+      year,
+      datePickerHeaderDate.getMonth(),
+      datePickerHeaderDate.getDate(),
     );
-    setType("date");
+
+    // Check if the new date is within the constraints
+    if (isDateWithinConstraints(newDate.getDate(), newDate.getMonth(), year)) {
+      setDatePickerHeaderDate(newDate);
+      setType("date");
+    } else {
+      Notification.Error({
+        msg: outOfLimitsErrorMessage ?? "Cannot select year out of range",
+      });
+    }
   };
+
+  // const isMonthOutOfRange = (month: number) => {
+  //   const testDate = new Date(datePickerHeaderDate.getFullYear(), month, 1);
+  //   return (min && testDate < min) || (max && testDate > max);
+  // };
+
+  // const isYearOutOfRange = (year: number) => {
+  //   const testDate = new Date(year, datePickerHeaderDate.getMonth(), 1);
+  //   return (min && testDate < min) || (max && testDate > max);
+  // };
 
   useEffect(() => {
     getDayCount(datePickerHeaderDate);

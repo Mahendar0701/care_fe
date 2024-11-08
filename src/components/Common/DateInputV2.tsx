@@ -202,7 +202,7 @@ const DateInputV2: React.FC<Props> = ({
     ) {
       return true;
     }
-    if (min) if (date < min) return false;
+    if (min) if (date <= min) return false;
     if (max) if (date > max) return false;
     return true;
   };

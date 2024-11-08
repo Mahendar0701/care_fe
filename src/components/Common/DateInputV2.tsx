@@ -254,6 +254,7 @@ const DateInputV2: React.FC<Props> = ({
       );
       setType("date");
     } else {
+      console.log("Cannot select year out of range");
       Notification.Error({
         msg: outOfLimitsErrorMessage ?? "Cannot select year out of range",
       });
@@ -536,11 +537,7 @@ const DateInputV2: React.FC<Props> = ({
                                             : "cursor-pointer text-secondary-700 hover:bg-secondary-300"
                                           : "!cursor-not-allowed !text-secondary-400",
                                       )}
-                                      onClick={
-                                        withinConstraints
-                                          ? setMonthValue(i)
-                                          : undefined
-                                      }
+                                      onClick={setMonthValue(i)}
                                     >
                                       {dayjs(
                                         new Date(
@@ -579,11 +576,7 @@ const DateInputV2: React.FC<Props> = ({
                                             : "cursor-pointer text-secondary-700 hover:bg-secondary-300"
                                           : "!cursor-not-allowed !text-secondary-400",
                                       )}
-                                      onClick={
-                                        withinConstraints
-                                          ? setYearValue(y)
-                                          : undefined
-                                      }
+                                      onClick={setYearValue(y)}
                                     >
                                       {y}
                                     </div>

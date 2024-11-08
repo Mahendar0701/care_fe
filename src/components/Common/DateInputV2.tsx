@@ -214,25 +214,50 @@ const DateInputV2: React.FC<Props> = ({
     year === datePickerHeaderDate.getFullYear();
 
   const setMonthValue = (month: number) => () => {
-    setDatePickerHeaderDate(
-      new Date(
-        datePickerHeaderDate.getFullYear(),
-        month,
-        datePickerHeaderDate.getDate(),
-      ),
+    const withinConstraints = isDateWithinConstraints(
+      datePickerHeaderDate.getDate(),
+      month,
+      datePickerHeaderDate.getFullYear(),
     );
-    setType("date");
+
+    if (withinConstraints) {
+      setDatePickerHeaderDate(
+        new Date(
+          datePickerHeaderDate.getFullYear(),
+          month,
+          datePickerHeaderDate.getDate(),
+        ),
+      );
+      setType("date");
+    } else {
+      // Show error notification for out of range month
+      Notification.Error({
+        msg: outOfLimitsErrorMessage ?? "Cannot select month out of range",
+      });
+    }
   };
 
   const setYearValue = (year: number) => () => {
-    setDatePickerHeaderDate(
-      new Date(
-        year,
-        datePickerHeaderDate.getMonth(),
+    if (
+      isDateWithinConstraints(
         datePickerHeaderDate.getDate(),
-      ),
-    );
-    setType("date");
+        datePickerHeaderDate.getMonth(),
+        year,
+      )
+    ) {
+      setDatePickerHeaderDate(
+        new Date(
+          year,
+          datePickerHeaderDate.getMonth(),
+          datePickerHeaderDate.getDate(),
+        ),
+      );
+      setType("date");
+    } else {
+      Notification.Error({
+        msg: outOfLimitsErrorMessage ?? "Cannot select year out of range",
+      });
+    }
   };
 
   useEffect(() => {
@@ -356,6 +381,11 @@ const DateInputV2: React.FC<Props> = ({
                             <button
                               type="button"
                               disabled={
+                                (type === "year" &&
+                                  min &&
+                                  dayjs(datePickerHeaderDate)
+                                    .subtract(1, "year")
+                                    .isBefore(dayjs(min), "year")) ||
                                 !isDateWithinConstraints(
                                   getLastDay(),
                                   datePickerHeaderDate.getMonth() - 1,
@@ -487,46 +517,73 @@ const DateInputV2: React.FC<Props> = ({
                             <div className="flex flex-wrap">
                               {Array(12)
                                 .fill(null)
-                                .map((_, i) => (
-                                  <div
-                                    key={i}
-                                    id={`month-${i}`}
-                                    className={classNames(
-                                      "w-1/4 cursor-pointer rounded-lg px-2 py-4 text-center text-sm font-semibold",
-                                      value && isSelectedMonth(i)
-                                        ? "bg-primary-500 text-white"
-                                        : "text-secondary-700 hover:bg-secondary-300",
-                                    )}
-                                    onClick={setMonthValue(i)}
-                                  >
-                                    {dayjs(
-                                      new Date(
-                                        datePickerHeaderDate.getFullYear(),
-                                        i,
-                                        1,
-                                      ),
-                                    ).format("MMM")}
-                                  </div>
-                                ))}
+                                .map((_, i) => {
+                                  const withinConstraints =
+                                    isDateWithinConstraints(
+                                      datePickerHeaderDate.getDate(),
+                                      i,
+                                      datePickerHeaderDate.getFullYear(),
+                                    );
+                                  return (
+                                    <div
+                                      key={i}
+                                      id={`month-${i}`}
+                                      className={classNames(
+                                        "w-1/4 rounded-lg px-2 py-4 text-center text-sm font-semibold",
+                                        withinConstraints
+                                          ? value && isSelectedMonth(i)
+                                            ? "cursor-pointer bg-primary-500 text-white"
+                                            : "cursor-pointer text-secondary-700 hover:bg-secondary-300"
+                                          : "!cursor-not-allowed !text-secondary-400",
+                                      )}
+                                      onClick={
+                                        withinConstraints
+                                          ? setMonthValue(i)
+                                          : undefined
+                                      }
+                                    >
+                                      {dayjs(
+                                        new Date(
+                                          datePickerHeaderDate.getFullYear(),
+                                          i,
+                                          1,
+                                        ),
+                                      ).format("MMM")}
+                                    </div>
+                                  );
+                                })}
                             </div>
                           )}
+
                           {type === "year" && (
                             <div className="flex flex-wrap">
                               {Array(12)
                                 .fill(null)
                                 .map((_, i) => {
                                   const y = year.getFullYear() - 11 + i;
+                                  const withinConstraints =
+                                    isDateWithinConstraints(
+                                      datePickerHeaderDate.getDate(),
+                                      datePickerHeaderDate.getMonth(),
+                                      y,
+                                    );
                                   return (
                                     <div
                                       key={i}
                                       id={`year-${i}`}
                                       className={classNames(
-                                        "w-1/4 cursor-pointer rounded-lg px-2 py-4 text-center text-sm font-semibold",
-                                        value && isSelectedYear(y)
-                                          ? "bg-primary-500 text-white"
-                                          : "text-secondary-700 hover:bg-secondary-300",
+                                        "w-1/4 rounded-lg px-2 py-4 text-center text-sm font-semibold",
+                                        withinConstraints
+                                          ? value && isSelectedYear(y)
+                                            ? "cursor-pointer bg-primary-500 text-white"
+                                            : "cursor-pointer text-secondary-700 hover:bg-secondary-300"
+                                          : "!cursor-not-allowed !text-secondary-400",
                                       )}
-                                      onClick={setYearValue(y)}
+                                      onClick={
+                                        withinConstraints
+                                          ? setYearValue(y)
+                                          : undefined
+                                      }
                                     >
                                       {y}
                                     </div>

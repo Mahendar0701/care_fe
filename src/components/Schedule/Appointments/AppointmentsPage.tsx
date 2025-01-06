@@ -93,6 +93,7 @@ export default function AppointmentsPage(props: { facilityId?: string }) {
   const facilityId = props.facilityId ?? authUser.home_facility!;
 
   const [viewMode, setViewMode] = useState<"board" | "list">("board");
+  const [open, setOpen] = useState(false);
 
   const resourcesQuery = useQuery({
     queryKey: ["appointments-resources", facilityId],
@@ -147,7 +148,7 @@ export default function AppointmentsPage(props: { facilityId?: string }) {
             <Label className="mb-2 text-black">
               {t("select_practitioner")}
             </Label>
-            <Popover>
+            <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild disabled={resourcesQuery.isLoading}>
                 <Button
                   variant="outline"
@@ -201,12 +202,13 @@ export default function AppointmentsPage(props: { facilityId?: string }) {
                         <CommandItem
                           key={user.id}
                           value={formatName(user)}
-                          onSelect={() =>
+                          onSelect={() => {
                             setQParams({
                               practitioner: user.id,
                               slot: undefined,
-                            })
-                          }
+                            });
+                            setOpen(false);
+                          }}
                           className="cursor-pointer"
                         >
                           <div className="flex items-center gap-2">

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { usePathParams } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -15,8 +16,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 import { Avatar } from "@/components/Common/Avatar";
-
-import useSlug from "@/hooks/useSlug";
 
 import query from "@/Utils/request/query";
 import { dateQueryString, formatDisplayName } from "@/Utils/utils";
@@ -65,12 +64,13 @@ export function AppointmentQuestion({
     });
   };
 
-  const facilityId = useSlug("facility");
+  const exactMatch = usePathParams("/facility/:facilityId/*");
+  const facilityId = exactMatch?.facilityId;
 
   const resourcesQuery = useQuery({
     queryKey: ["availableResources", facilityId],
     queryFn: query(scheduleApis.appointments.availableUsers, {
-      pathParams: { facility_id: facilityId },
+      pathParams: { facility_id: facilityId! },
     }),
   });
 
@@ -82,7 +82,7 @@ export function AppointmentQuestion({
       dateQueryString(selectedDate),
     ],
     queryFn: query(scheduleApis.slots.getSlotsForDay, {
-      pathParams: { facility_id: facilityId },
+      pathParams: { facility_id: facilityId! },
       body: {
         // voluntarily coalesce to empty string since we know query would be
         // enabled only if resource and selectedDate are present

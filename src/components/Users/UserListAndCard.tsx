@@ -1,4 +1,4 @@
-import { navigate } from "raviger";
+import { navigate, usePathParams } from "raviger";
 import { useTranslation } from "react-i18next";
 
 import Card from "@/CAREUI/display/Card";
@@ -11,7 +11,6 @@ import Tabs from "@/components/Common/Tabs";
 import SearchInput from "@/components/Form/SearchInput";
 
 import useAuthUser from "@/hooks/useAuthUser";
-import useSlug from "@/hooks/useSlug";
 import useWindowDimensions from "@/hooks/useWindowDimensions";
 
 import {
@@ -24,7 +23,8 @@ import { UserBase } from "@/types/user/user";
 
 const GetDetailsButton = (username: string) => {
   const { t } = useTranslation();
-  const facilityId = useSlug("facility");
+  const exactMatch = usePathParams("/facility/:facilityId/*");
+  const facilityId = exactMatch?.facilityId;
   return (
     <div className="grow">
       <button

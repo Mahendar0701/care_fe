@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useQueryParams } from "raviger";
+import { usePathParams, useQueryParams } from "raviger";
 import { useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -16,8 +16,6 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import Loading from "@/components/Common/Loading";
-
-import useSlug from "@/hooks/useSlug";
 
 import query from "@/Utils/request/query";
 import { formatTimeShort } from "@/Utils/utils";
@@ -47,7 +45,8 @@ export default function UserAvailabilityTab({ userData: user }: Props) {
   const view = qParams.view || "schedule";
   const [month, setMonth] = useState(new Date());
 
-  const facilityId = useSlug("facility");
+  const exactMatch = usePathParams("/facility/:facilityId/*");
+  const facilityId = exactMatch?.facilityId;
 
   const templatesQuery = useQuery({
     queryKey: ["user-schedule-templates", { facilityId, userId: user.id }],
@@ -243,13 +242,13 @@ export default function UserAvailabilityTab({ userData: user }: Props) {
           </div>
           {view === "schedule" && (
             <CreateScheduleTemplateSheet
-              facilityId={facilityId}
+              facilityId={facilityId!}
               userId={user.id}
             />
           )}
           {view === "exceptions" && (
             <CreateScheduleExceptionSheet
-              facilityId={facilityId}
+              facilityId={facilityId!}
               userId={user.id}
             />
           )}
@@ -259,7 +258,7 @@ export default function UserAvailabilityTab({ userData: user }: Props) {
           <ScrollArea className="h-[calc(100vh-24rem)] -mr-3 pr-3 pb-4">
             {view === "schedule" && (
               <ScheduleTemplates
-                facilityId={facilityId}
+                facilityId={facilityId!}
                 userId={user.id}
                 items={
                   templatesQuery.isLoading
@@ -276,7 +275,7 @@ export default function UserAvailabilityTab({ userData: user }: Props) {
                     ? undefined
                     : exceptionsQuery.data?.results
                 }
-                facilityId={facilityId}
+                facilityId={facilityId!}
                 userId={user.id}
               />
             )}

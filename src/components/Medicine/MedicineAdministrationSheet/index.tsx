@@ -1,5 +1,5 @@
 import { t } from "i18next";
-import { Link } from "raviger";
+import { Link, usePathParams } from "raviger";
 import { useState } from "react";
 
 import SubHeading from "@/CAREUI/display/SubHeading";
@@ -12,8 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import Loading from "@/components/Common/Loading";
 import { useEncounter } from "@/components/Facility/ConsultationDetails/EncounterContext";
-
-import useSlug from "@/hooks/useSlug";
 
 import routes from "@/Utils/request/api";
 import useTanStackQueryInstead from "@/Utils/request/useQuery";
@@ -46,7 +44,8 @@ function getFrequencyDisplay(
 }
 
 const MedicineAdministrationSheet = ({ facilityId }: Props) => {
-  const encounterId = useSlug("encounter");
+  const exactMatch = usePathParams("*/encounter/:encounterId/*");
+  const encounterId = exactMatch?.encounterId;
   const { patient } = useEncounter();
   const [searchQuery, setSearchQuery] = useState("");
 
